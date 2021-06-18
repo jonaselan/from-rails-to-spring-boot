@@ -22,7 +22,7 @@ Contributions are welcome!
 [Destroying a Resource](#destroying-a-resource)
 
 ## Pre-requisite
-[Java Development Kit 8](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
+[Java Development Kit 8](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) or higher
 
 ## Maven instalation
 
@@ -128,6 +128,8 @@ Rails' routes.rb in Spring Boot. Routes are defined alongside with its methods).
 Because of Thymeleaf, by returning the String "bar", the application will look
 for an HTML file of the same name in `src/main/resources/templates/`
 
+The annotation `@Controller` is used when every action inside the controller will return a view. When we create a API, is necessary to change to `@RestController` which marks every single method returns a domain object instead of a view. It is shorthand for including both `@Controller` and `@ResponseBody`.
+
 Create the following page:
 _bar.html_
 ```html
@@ -182,7 +184,13 @@ public class Post {
     @Id // Mark id field as the entity's identity
     @GeneratedValue(strategy = GenerationType.AUTO) // Value will be automatically provided
     private Long id;
+
+    @NotNull
+    @Size(min = 5, max = 100, message = "Title length should be between 5 and 100")
     private String title;
+    
+    @NotNull
+    @Size(min = 5, max = 255, message = "Content length should be between 5 and 255")
     private String content;
 
     public Long getId() { ... }
@@ -267,6 +275,7 @@ public class BlogController {
     }
 }
 ```
+The notation `Autowired` is being used for automatic configuration in Spring. This annotation search for PostRepository interface’s implementation from Spring Container.
 
 See whole implementation [in
 here](https://github.com/lidimayra/from-rails-to-spring-boot/commit/b7301838feb251851874fc72704e0100d2e8fa0e#diff-926ef30f0a8789410c4e35200aacb000).
@@ -416,7 +425,6 @@ responsible for showing a resource.
 Changes to be performed to the controller:
 ```java
 @GetMapping("/posts/{postId}")
-public String showPost() {
 public String showPost(@PathVariable("postId") long id, Model model) {
     Post post = postRepository.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("Invalid Post Id:" + id));
